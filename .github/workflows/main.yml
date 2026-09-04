@@ -22,44 +22,44 @@ jobs:
       - run: npm i
       - run: npm run build
 
-    deploy:
-      needs: test-build
-      runs-on: ubuntu-latest
+  deploy:
+    needs: test-build
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
       
-      strategy:
-        matrix:
-          node-version: [20.x]
-        
-      steps:
-        - name: Build app on VM
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            eval "$(ssh-agent -s)"
-            ssh-add ~/.ssh/Praktikan33
-            echo "Cek folder project";
-            [ ! -d "${HOME}/senpro/540199/modul02/senpro-github-action/" ] &&
-             {
-                echo "Repository belum di-clone. Cloning...";
-                mkdir -p /senpro/540199/modul02;
-                cd ~/senpro/540199/modul02;
-                git clone https://github.com/FachryAlfareeza/senpro-github-action;
-                cd ~/senpro/540199/modul02/senpro-github-action;
-                echo "Install Package dan Build Project";
-                npm install;
-                npm run build;
-              } ||
-              {
-                echo "Repository sudah ada. Building...";
-                cd ~/senpro/540199/modul02/senpro-github-action;
-                git restore .;
-                git pull origin main;
-                echo "Install Package dan Build Project";
-                npm install;
-                npm run build;
-              }
+    steps:
+      - name: Build app on VM
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/Praktikan33
+          echo "Cek folder project";
+          [ ! -d "${HOME}/senpro/540199/modul02/senpro-github-action/" ] &&
+            {
+              echo "Repository belum di-clone. Cloning...";
+              mkdir -p /senpro/540199/modul02;
+              cd ~/senpro/540199/modul02;
+              git clone https://github.com/FachryAlfareeza/senpro-github-action;
+              cd ~/senpro/540199/modul02/senpro-github-action;
+              echo "Install Package dan Build Project";
+              npm install;
+              npm run build;
+            } ||
+            {
+              echo "Repository sudah ada. Building...";
+              cd ~/senpro/540199/modul02/senpro-github-action;
+              git restore .;
+              git pull origin main;
+              echo "Install Package dan Build Project";
+              npm install;
+              npm run build;
+            }
             
